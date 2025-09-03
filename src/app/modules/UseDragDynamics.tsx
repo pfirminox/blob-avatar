@@ -27,6 +27,8 @@ export default (props: {
     const rawDirection = useRef(new Vector3());
     const targetScale = useRef(new Vector3(1, 1, 1));
     const springScale = useRef(new Vector3());
+    const targetVelocity = useRef(new Vector3());
+    const springVelocity = useRef(new Vector3());
 
     const ProcessMovingSpeed = () =>{
         if (!canvasContext || !prevPosition.current) return;
@@ -38,6 +40,34 @@ export default (props: {
         );
 
         prevPosition.current = [...canvasContext.position];
+
+        // --- Spring physics ---
+        const stiffness = 0.2; // how strong the spring pulls back
+        const damping = 0.8;   // how much energy is lost per frame
+        const magnitude = 0.2;
+        const springSpeed = 0.5;
+        const maxOffset = 0.01;
+
+        const speedLen = speed.current.length();
+        if (speedLen > 0) {
+            targetVelocity.current.set(
+                speed.current.x,
+                -speed.current.y,
+                speed.current.z
+            ).multiplyScalar(magnitude);
+        } else {
+            let target = new Vector3().subVectors(new Vector3(), rootRef.current.position);
+            targetVelocity.current.set(target.x, target.y, target.z); // return to normal
+        }
+
+        // force = (target - current) * stiffness
+        const force = new Vector3().subVectors(targetVelocity.current, new Vector3()).multiplyScalar(stiffness);
+
+        springVelocity.current.add(force);          // integrate force
+        springVelocity.current.multiplyScalar(damping); // apply damping.
+
+        rootRef.current.position.add(springVelocity.current.clone().multiplyScalar(springSpeed).clampScalar(-maxOffset, maxOffset));
+
     }
     const ProcessStretchSquash = () => {
         const speedLen = speed.current.length();
@@ -54,7 +84,8 @@ export default (props: {
 
         // --- Spring physics ---
         const stiffness = 0.2; // how strong the spring pulls back
-        const damping = 0.8;   // how much energy is lost per frame
+        const damping = 0.8;
+        const springSpeed = 0.5;  // how much energy is lost per frame
 
         // force = (target - current) * stiffness
         const force = new Vector3().subVectors(targetScale.current, rootRef.current.scale).multiplyScalar(stiffness);
@@ -62,7 +93,7 @@ export default (props: {
         springScale.current.add(force);          // integrate force
         springScale.current.multiplyScalar(damping); // apply damping
 
-        rootRef.current.scale.add(springScale.current); // update scale
+        rootRef.current.scale.add(springScale.current.clone().multiplyScalar(springSpeed)); // update scale
     }
     const ProcessRotation = () => {
         if (speed.current.length() == 0) return;
@@ -94,14 +125,15 @@ export default (props: {
         ProcessRotation();
     })
     const Log = () => {
-        if(!helper.current) return;
+     /*   if(!helper.current) return;
         const rawAngle = Math.atan2(-rawDirection.current.y, rawDirection.current.x); // screen Y inverted
         const currentAngle = helper.current.rotation.z; // screen Y inverted
 
         const {within, diffDeg} = isWithinAngleRange(rawAngle, currentAngle, 10)
         
         console.log(rawAngle, currentAngle);
-        console.log(`delta = ${diffDeg.toFixed(2)}°  within ±10°? ${within}`);
+        console.log(`delta = ${diffDeg.toFixed(2)}°  within ±10°? ${within}`);*/
+        console.log(speed.current, springVelocity.current);
     }
     return (<>
         {/*Log()*/}

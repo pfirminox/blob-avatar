@@ -22,7 +22,7 @@ export default function App() {
     useEffect(()=>{
         if (!window) return;
 
-       setCanvasPosition([window.innerWidth/2 - canvasSize[0]/2, window.innerHeight/2 - canvasSize[1]/2]);
+        setCanvasPosition([window.innerWidth/2 - canvasSize[0]/2, window.innerHeight/2 - canvasSize[1]/2]);
     },[])
     return (
         <div
@@ -32,6 +32,7 @@ export default function App() {
                 left: canvasPosition[0],
                 width: `${canvasSize[0]}px`,
                 height: `${canvasSize[1]}px`,
+                backgroundColor: 'rgba(0, 255, 0, 0.1)'
             }}
         >
             <Canvas>
