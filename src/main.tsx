@@ -1,18 +1,19 @@
 import { createRoot } from 'react-dom/client'
-import './global.css'
 import App from './App.tsx'
 
 // Create a container div in the page
-const rootDiv = document.createElement("div");
-rootDiv.id = "r3f-root";
-rootDiv.style.position = "fixed";
-rootDiv.style.top = "0";
-rootDiv.style.left = "0";
-rootDiv.style.width = "300px"; // Adjust size as needed
-rootDiv.style.height = "300px";
-rootDiv.style.zIndex = "9999";
-rootDiv.style.pointerEvents = "auto"; // Enable pointer events
-document.body.appendChild(rootDiv);
+const appContainer = document.createElement("div");
+appContainer.setAttribute("id", "blob-extension");
+Object.assign(appContainer.style, {
+  position: "fixed",   // stays in place even when scrolling
+  top: "0",
+  left: "0",
+  width: "100vw",
+  height: "100vh",
+  zIndex: "2147483647", // max safe integer for z-index
+  pointerEvents: "none" // (optional) so clicks pass through
+});
+document.body.appendChild(appContainer);
 
 // Render the React app without StrictMode
-createRoot(rootDiv).render(<App />);
+createRoot(appContainer).render(<App />);

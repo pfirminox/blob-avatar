@@ -1,9 +1,10 @@
 'use client';
 
-import { createContext, useEffect, useState } from 'react';
+import { createContext, Suspense, useEffect, useState } from 'react';
 import { Canvas } from '@react-three/fiber';
 import { Environment, PerspectiveCamera } from '@react-three/drei';
-import Blob from './modules/Blob';
+import React from 'react';
+const Blob = React.lazy(() => import('./modules/Blob'));
 
 export const CanvasContext = createContext<{
     setPosition: (position: number[]) => void ,
@@ -42,7 +43,9 @@ export default function App() {
                     setPosition: (value) => SetCanvasPosition(value), 
                     position: canvasPosition,
                     size: canvasSize}} >
-                    <Blob />
+                    <Suspense fallback={null}>
+                        <Blob />
+                    </Suspense>
                 </CanvasContext.Provider>
             </Canvas>
         </div>

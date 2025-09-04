@@ -1,11 +1,12 @@
-import { Plane, useAnimations, useGLTF } from "@react-three/drei"
+import { Plane, useAnimations } from "@react-three/drei"
 import { useContext, useEffect, useRef, useState } from "react"
 import { Group, LoopOnce, Vector2 } from "three"
 import { CanvasContext } from "../App"
 import UseDragDynamics from "./UseDragDynamics"
+import { useChromeGLTF } from "./useChromeGLTF"
 
 export default () => {
-    const gltf = useGLTF('/blob.glb');
+    const gltf = useChromeGLTF("assets/blob.glb", "assets/draco/")
     const canvasContext = useContext(CanvasContext);
     const isDragging = useRef(false);
     const rootRef = useRef<Group>(null!);
@@ -13,8 +14,7 @@ export default () => {
     const meshRef = useRef<Group>(null!);
     const helperRef = useRef<Group>(null!);
     const rawInput = useRef([0,0]);
-    const animations = gltf.animations;
-    const {actions, mixer} = useAnimations(animations, gltf.scene)
+    const {actions, mixer} = useAnimations(gltf?.animations ?? [], gltf?.scene)
     const [currentAnimations, setCurrentAnimations] = useState(['Idle', 'Blink']);
     const timeoutRef = useRef<number | null>(null);
 
@@ -58,7 +58,7 @@ export default () => {
     };
 
     useEffect(()=>{
-        if(!actions) return;
+        if(!gltf || !actions) return;
 
         currentAnimations.forEach(anim =>{
             actions[anim]?.play();
@@ -82,6 +82,7 @@ export default () => {
         isDragging.current = true;
     }
 
+    if (!gltf || !gltf.scene) return null
 
     return (
         <>
