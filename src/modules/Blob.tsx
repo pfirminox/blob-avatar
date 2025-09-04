@@ -1,5 +1,4 @@
 import { Plane, useAnimations, useGLTF } from "@react-three/drei"
-import { ThreeEvent } from "@react-three/fiber"
 import { useContext, useEffect, useRef, useState } from "react"
 import { Group, LoopOnce, Vector2 } from "three"
 import { CanvasContext } from "../App"
@@ -14,12 +13,10 @@ export default () => {
     const meshRef = useRef<Group>(null!);
     const helperRef = useRef<Group>(null!);
     const rawInput = useRef([0,0]);
-    const useDragDynamics = UseDragDynamics({
-        rootRef: rootRef, constrainRef: constrainRef, helper: helperRef, rawInput: rawInput.current});
     const animations = gltf.animations;
     const {actions, mixer} = useAnimations(animations, gltf.scene)
     const [currentAnimations, setCurrentAnimations] = useState(['Idle', 'Blink']);
-    const timeoutRef = useRef<NodeJS.Timeout | null>(null);
+    const timeoutRef = useRef<number | null>(null);
 
     useEffect(() => {
         if (!window) return;
@@ -80,7 +77,7 @@ export default () => {
 
     }, [actions])
 
-    const onPointerDown = (e: ThreeEvent<PointerEvent>) => {
+    const onPointerDown = (e: PointerEvent) => {
         e.stopPropagation();
         isDragging.current = true;
     }
@@ -95,7 +92,7 @@ export default () => {
                         object={gltf.scene}
                         rotation={[0, 20 * Math.PI / 180, 0]}
                         position={[0, -0.5, 0]}
-                        onPointerDown={(e: ThreeEvent<PointerEvent>) => onPointerDown(e)}></primitive>
+                        onPointerDown={(e: PointerEvent) => onPointerDown(e)}></primitive>
                     </group>
                 <group ref={helperRef} visible={false}>
                     <Plane position={[0.5, 0,0]} args={[1,.02]}>
@@ -103,6 +100,11 @@ export default () => {
                     </Plane>
                 </group>
             </group>
+            <UseDragDynamics
+                rootRef={rootRef.current}
+                constrainRef={constrainRef.current}
+                helper={helperRef.current}
+                rawInput={rawInput.current} />;
         </>
     )
 }

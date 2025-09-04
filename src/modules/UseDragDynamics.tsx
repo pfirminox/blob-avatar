@@ -1,6 +1,6 @@
 import { useFrame, useThree } from "@react-three/fiber";
-import { RefObject, useContext, useRef } from "react";
-import { Euler, Group, Quaternion, Vector3 } from "three";
+import { useContext, useRef } from "react";
+import { Group, Quaternion, Vector3 } from "three";
 import { CanvasContext } from "../App";
 import { isWithinAngleRange } from "./Utils";
 
@@ -13,9 +13,9 @@ current += velocity
 */
 
 export default (props: { 
-        rootRef: RefObject<Group>, 
-        constrainRef: RefObject<Group>, 
-        helper: RefObject<Group>
+        rootRef: Group, 
+        constrainRef: Group, 
+        helper: Group
         rawInput: number[]}) => 
 {
     const { camera, size } = useThree();
@@ -56,7 +56,7 @@ export default (props: {
                 speed.current.z
             ).multiplyScalar(magnitude);
         } else {
-            let target = new Vector3().subVectors(new Vector3(), rootRef.current.position);
+            let target = new Vector3().subVectors(new Vector3(), rootRef.position);
             targetVelocity.current.set(target.x, target.y, target.z); // return to normal
         }
 
@@ -66,7 +66,7 @@ export default (props: {
         springVelocity.current.add(force);          // integrate force
         springVelocity.current.multiplyScalar(damping); // apply damping.
 
-        rootRef.current.position.add(springVelocity.current.clone().multiplyScalar(springSpeed).clampScalar(-maxOffset, maxOffset));
+        rootRef.position.add(springVelocity.current.clone().multiplyScalar(springSpeed).clampScalar(-maxOffset, maxOffset));
 
     }
     const ProcessStretchSquash = () => {
@@ -88,18 +88,18 @@ export default (props: {
         const springSpeed = 0.5;  // how much energy is lost per frame
 
         // force = (target - current) * stiffness
-        const force = new Vector3().subVectors(targetScale.current, rootRef.current.scale).multiplyScalar(stiffness);
+        const force = new Vector3().subVectors(targetScale.current, rootRef.scale).multiplyScalar(stiffness);
 
         springScale.current.add(force);          // integrate force
         springScale.current.multiplyScalar(damping); // apply damping
 
-        rootRef.current.scale.add(springScale.current.clone().multiplyScalar(springSpeed)); // update scale
+        rootRef.scale.add(springScale.current.clone().multiplyScalar(springSpeed)); // update scale
     }
     const ProcessRotation = () => {
         if (speed.current.length() == 0) return;
 
         const rawAngle = Math.atan2(-speed.current.y, speed.current.x); // screen Y inverted
-        const currentAngle = helper.current.rotation.z; // screen Y inverted
+        const currentAngle = helper.rotation.z; // screen Y inverted
         const {within, diffDeg} = isWithinAngleRange(rawAngle, currentAngle, 60);
 
         direction.current = !within? speed.current : direction.current.lerp(speed.current, 0.2);
@@ -108,17 +108,17 @@ export default (props: {
         const quat = new Quaternion().setFromAxisAngle(new Vector3(0, 0, 1), angle);
 
         if(!within){
-            rootRef.current.setRotationFromQuaternion(quat);
+            rootRef.setRotationFromQuaternion(quat);
         }
         else{
-            rootRef.current.quaternion.slerp(quat, 0.2); // smooth lerp
+            rootRef.quaternion.slerp(quat, 0.2); // smooth lerp
         }
 
         //Cancel out the inner object rotation
-        constrainRef.current.quaternion.copy(rootRef.current.quaternion).invert(); 
+        constrainRef.quaternion.copy(rootRef.quaternion).invert(); 
     }
     useFrame((state) => {
-        if (!rootRef.current || !constrainRef.current || !helper.current) return
+        if (!rootRef || !constrainRef || !helper) return
 
         ProcessMovingSpeed();
         ProcessStretchSquash();

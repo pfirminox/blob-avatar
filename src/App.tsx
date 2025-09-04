@@ -1,6 +1,6 @@
 'use client';
 
-import React, { createContext, Ref, RefObject, useEffect, useRef, useState } from 'react';
+import { createContext, useEffect, useState } from 'react';
 import { Canvas } from '@react-three/fiber';
 import { Environment, PerspectiveCamera } from '@react-three/drei';
 import Blob from './modules/Blob';

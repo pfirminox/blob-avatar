@@ -1,0 +1,19 @@
+{
+  "manifest_version": 3,
+  "name": "Blob Extension",
+  "version": "1.0",
+  "description": "Injects the Blob Avatar into any webpage",
+  "permissions": ["activeTab", "scripting"],
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "js": ["content.js"]
+    }
+  ],
+  "web_accessible_resources": [
+    {
+      "resources": ["assets/*.js"],
+      "matches": ["<all_urls>"]
+    }
+  ]
+}
