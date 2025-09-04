@@ -3,7 +3,7 @@
   "name": "Blob Avatar",
   "version": "1.0",
   "description": "Injects a Blob avatar to any page",
-  "permissions": ["scripting", "activeTab"],
+  "permissions": ["tabs", "activeTab", "scripting", "storage", "windows"],
   "background": {
     "service_worker": "background.js"
   },
@@ -13,7 +13,8 @@
   "content_scripts": [
     {
       "matches": ["<all_urls>"],
-      "js": ["app.js"]
+      "js": ["app.js"],
+      "run_at": "document_start"
     }
   ],
   "web_accessible_resources": [
