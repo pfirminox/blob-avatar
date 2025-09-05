@@ -4,6 +4,7 @@ import { Group, LoopOnce, Vector2 } from "three"
 import { CanvasContext } from "../App"
 import UseDragDynamics from "./UseDragDynamics"
 import { useChromeGLTF } from "./useChromeGLTF"
+import UseBlobCustomShaders from "./UseBlobCustomShaders"
 
 export default () => {
     const gltf = useChromeGLTF("assets/blob.glb", "assets/draco/")
@@ -106,6 +107,7 @@ export default () => {
                 constrainRef={constrainRef.current}
                 helper={helperRef.current}
                 rawInput={rawInput.current} />;
+            <UseBlobCustomShaders gltf={gltf} />
         </>
     )
 }
